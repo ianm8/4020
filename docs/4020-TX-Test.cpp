@@ -761,7 +761,7 @@ static void test_lp(void)
    static int16_t buf_out_i[BUFFER_SIZE];
    static int16_t buf_out_q[BUFFER_SIZE];
 
-   const int32_t freq = 0;
+   const int32_t freq = 1000;
    const int32_t amp = 1000;
    const int32_t offset = 400;
    const auto phase = 0;
