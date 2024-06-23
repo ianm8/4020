@@ -6,7 +6,7 @@
 
 static const int16_t __not_in_flash_func(lpf_2400)(const int16_t sample)
 {
-   // 31250
+   // nominal 31250 sample rate
    static int32_t x[FIR_LENGTH] = { 0 };
    static uint8_t sample_index = 0;
    uint8_t i = sample_index;
@@ -142,7 +142,7 @@ static const int16_t __not_in_flash_func(lpf_2400)(const int16_t sample)
    return (int16_t)(acc >> 15);
 }
 
-static const int16_t __not_in_flash_func(lpf_fs4)(const int16_t sample)
+static const int16_t __not_in_flash_func(lpf_fs4_1)(const int16_t sample)
 {
    // 31250
    // Taps: 199 (computationally 100 since cutoff is Fs/4)
@@ -354,6 +354,287 @@ static const int16_t __not_in_flash_func(lpf_fs4)(const int16_t sample)
    return (int16_t)(acc >> 15);
 }
 
+static const int16_t __not_in_flash_func(lpf_fs4_2)(const int16_t sample)
+{
+   // 31250
+   // Taps: 199 (computationally 100 since cutoff is Fs/4)
+   // Att: 45 (60dB+)
+   static int32_t x[FIR_LENGTH] = { 0 };
+   static uint8_t sample_index = 0;
+   uint8_t i = sample_index;
+   x[sample_index--] = sample;
+   int32_t acc = 0;
+   __mac_tap(-10);
+   __mac_tap(0);
+   __mac_tap(11);
+   __mac_tap(0);
+   __mac_tap(-14);
+   __mac_tap(0);
+   __mac_tap(15);
+   __mac_tap(0);
+   __mac_tap(-18);
+   __mac_tap(0);
+   __mac_tap(20);
+   __mac_tap(0);
+   __mac_tap(-24);
+   __mac_tap(0);
+   __mac_tap(25);
+   __mac_tap(0);
+   __mac_tap(-30);
+   __mac_tap(0);
+   __mac_tap(32);
+   __mac_tap(0);
+   __mac_tap(-37);
+   __mac_tap(0);
+   __mac_tap(40);
+   __mac_tap(0);
+   __mac_tap(-45);
+   __mac_tap(0);
+   __mac_tap(49);
+   __mac_tap(0);
+   __mac_tap(-54);
+   __mac_tap(0);
+   __mac_tap(59);
+   __mac_tap(0);
+   __mac_tap(-65);
+   __mac_tap(0);
+   __mac_tap(70);
+   __mac_tap(0);
+   __mac_tap(-78);
+   __mac_tap(0);
+   __mac_tap(83);
+   __mac_tap(0);
+   __mac_tap(-92);
+   __mac_tap(0);
+   __mac_tap(99);
+   __mac_tap(0);
+   __mac_tap(-108);
+   __mac_tap(0);
+   __mac_tap(116);
+   __mac_tap(0);
+   __mac_tap(-127);
+   __mac_tap(0);
+   __mac_tap(136);
+   __mac_tap(0);
+   __mac_tap(-148);
+   __mac_tap(0);
+   __mac_tap(160);
+   __mac_tap(0);
+   __mac_tap(-174);
+   __mac_tap(0);
+   __mac_tap(187);
+   __mac_tap(0);
+   __mac_tap(-204);
+   __mac_tap(0);
+   __mac_tap(220);
+   __mac_tap(0);
+   __mac_tap(-240);
+   __mac_tap(0);
+   __mac_tap(260);
+   __mac_tap(0);
+   __mac_tap(-284);
+   __mac_tap(0);
+   __mac_tap(309);
+   __mac_tap(0);
+   __mac_tap(-340);
+   __mac_tap(0);
+   __mac_tap(373);
+   __mac_tap(0);
+   __mac_tap(-413);
+   __mac_tap(0);
+   __mac_tap(459);
+   __mac_tap(0);
+   __mac_tap(-516);
+   __mac_tap(0);
+   __mac_tap(583);
+   __mac_tap(0);
+   __mac_tap(-669);
+   __mac_tap(0);
+   __mac_tap(778);
+   __mac_tap(0);
+   __mac_tap(-929);
+   __mac_tap(0);
+   __mac_tap(1142);
+   __mac_tap(0);
+   __mac_tap(-1478);
+   __mac_tap(0);
+   __mac_tap(2076);
+   __mac_tap(0);
+   __mac_tap(-3472);
+   __mac_tap(0);
+   __mac_tap(10428);
+   __mac_tap(16384);
+   __mac_tap(10428);
+   __mac_tap(0);
+   __mac_tap(-3472);
+   __mac_tap(0);
+   __mac_tap(2076);
+   __mac_tap(0);
+   __mac_tap(-1478);
+   __mac_tap(0);
+   __mac_tap(1142);
+   __mac_tap(0);
+   __mac_tap(-929);
+   __mac_tap(0);
+   __mac_tap(778);
+   __mac_tap(0);
+   __mac_tap(-669);
+   __mac_tap(0);
+   __mac_tap(583);
+   __mac_tap(0);
+   __mac_tap(-516);
+   __mac_tap(0);
+   __mac_tap(459);
+   __mac_tap(0);
+   __mac_tap(-413);
+   __mac_tap(0);
+   __mac_tap(373);
+   __mac_tap(0);
+   __mac_tap(-340);
+   __mac_tap(0);
+   __mac_tap(309);
+   __mac_tap(0);
+   __mac_tap(-284);
+   __mac_tap(0);
+   __mac_tap(260);
+   __mac_tap(0);
+   __mac_tap(-240);
+   __mac_tap(0);
+   __mac_tap(220);
+   __mac_tap(0);
+   __mac_tap(-204);
+   __mac_tap(0);
+   __mac_tap(187);
+   __mac_tap(0);
+   __mac_tap(-174);
+   __mac_tap(0);
+   __mac_tap(160);
+   __mac_tap(0);
+   __mac_tap(-148);
+   __mac_tap(0);
+   __mac_tap(136);
+   __mac_tap(0);
+   __mac_tap(-127);
+   __mac_tap(0);
+   __mac_tap(116);
+   __mac_tap(0);
+   __mac_tap(-108);
+   __mac_tap(0);
+   __mac_tap(99);
+   __mac_tap(0);
+   __mac_tap(-92);
+   __mac_tap(0);
+   __mac_tap(83);
+   __mac_tap(0);
+   __mac_tap(-78);
+   __mac_tap(0);
+   __mac_tap(70);
+   __mac_tap(0);
+   __mac_tap(-65);
+   __mac_tap(0);
+   __mac_tap(59);
+   __mac_tap(0);
+   __mac_tap(-54);
+   __mac_tap(0);
+   __mac_tap(49);
+   __mac_tap(0);
+   __mac_tap(-45);
+   __mac_tap(0);
+   __mac_tap(40);
+   __mac_tap(0);
+   __mac_tap(-37);
+   __mac_tap(0);
+   __mac_tap(32);
+   __mac_tap(0);
+   __mac_tap(-30);
+   __mac_tap(0);
+   __mac_tap(25);
+   __mac_tap(0);
+   __mac_tap(-24);
+   __mac_tap(0);
+   __mac_tap(20);
+   __mac_tap(0);
+   __mac_tap(-18);
+   __mac_tap(0);
+   __mac_tap(15);
+   __mac_tap(0);
+   __mac_tap(-14);
+   __mac_tap(0);
+   __mac_tap(11);
+   __mac_tap(0);
+   __mac_tap(-10);
+   return (int16_t)(acc >> 15);
+}
+
+static const int16_t __not_in_flash_func(hpf_fs8)(const int16_t sample)
+{
+   // 31248
+   // cutoff: 3906 (Fs/8)
+   // Taps: 55
+   // Att: 40 (50dB+)
+   static int32_t x[FIR_LENGTH] = { 0 };
+   static uint8_t sample_index = 0;
+   uint8_t i = sample_index;
+   x[sample_index--] = sample;
+   int32_t acc = 0;
+  __mac_tap(-41);
+  __mac_tap(-73);
+  __mac_tap(-64);
+  __mac_tap(0);
+  __mac_tap(93);
+  __mac_tap(156);
+  __mac_tap(130);
+  __mac_tap(0);
+  __mac_tap(-177);
+  __mac_tap(-289);
+  __mac_tap(-235);
+  __mac_tap(0);
+  __mac_tap(308);
+  __mac_tap(497);
+  __mac_tap(401);
+  __mac_tap(0);
+  __mac_tap(-526);
+  __mac_tap(-854);
+  __mac_tap(-698);
+  __mac_tap(0);
+  __mac_tap(956);
+  __mac_tap(1619);
+  __mac_tap(1404);
+  __mac_tap(0);
+  __mac_tap(-2416);
+  __mac_tap(-5175);
+  __mac_tap(-7362);
+  __mac_tap(24576);
+  __mac_tap(-7362);
+  __mac_tap(-5175);
+  __mac_tap(-2416);
+  __mac_tap(0);
+  __mac_tap(1404);
+  __mac_tap(1619);
+  __mac_tap(956);
+  __mac_tap(0);
+  __mac_tap(-698);
+  __mac_tap(-854);
+  __mac_tap(-526);
+  __mac_tap(0);
+  __mac_tap(401);
+  __mac_tap(497);
+  __mac_tap(308);
+  __mac_tap(0);
+  __mac_tap(-235);
+  __mac_tap(-289);
+  __mac_tap(-177);
+  __mac_tap(0);
+  __mac_tap(130);
+  __mac_tap(156);
+  __mac_tap(93);
+  __mac_tap(0);
+  __mac_tap(-64);
+  __mac_tap(-73);
+  __mac_tap(-41);
+   return (int16_t)(acc >> 15);
+}
+
 static const int16_t __not_in_flash_func(lpf_fs4_i)(const int16_t sample)
 {
    // 31250
@@ -421,7 +702,7 @@ static const int16_t __not_in_flash_func(dc)(const int16_t in)
   return (y1 = s >> 16);
 }
 
-const void __not_in_flash_func(process_mic)(const int16_t s,int16_t &out_i,int16_t &out_q)
+const void __not_in_flash_func(process_mic)(const int16_t s,int16_t &out_i,int16_t &out_q,const bool proc)
 {
   // generate a quadrature version of the input signal
   // this is done by applying a local oscillator at one quarter
@@ -445,7 +726,18 @@ const void __not_in_flash_func(process_mic)(const int16_t s,int16_t &out_i,int16
 
   // remove the upper image
   // note with a LPF at FS/4 there are many zeros
-  v = lpf_fs4(v);
+  v = lpf_fs4_1(v);
+
+  // mic processor
+  if (proc)
+  {
+    v *= 2; // some noticeable gain - some low level splatter
+    //v *= 4; // too much splatter
+
+    v = constrain(v,-1024,+1023);
+    v = lpf_fs4_2(v);
+    v = hpf_fs8(v);
+  }
 
   // LO to down convert in quadrature
   // note at FS/4 the LO signal reduces to 0, 1 and -1
