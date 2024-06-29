@@ -122,7 +122,7 @@ volatile static struct
   bool attenuation;
   bool tx_enable;
   bool mic_proc;
-} 
+}
 radio =
 {
   0,
@@ -151,7 +151,7 @@ bands[] =
 volatile static struct
 {
   uint32_t frequency;
-} 
+}
 save_data[] =
 {
   { 7105000UL},
