@@ -731,14 +731,13 @@ const void __not_in_flash_func(process_mic)(const int16_t s,int16_t &out_i,int16
   // mic processor
   if (proc)
   {
-    v *= 2; // some noticeable gain - some low level splatter
-    //v *= 4; // too much splatter
-
+    // do not exceed 2
+    v *= 2;
     v = constrain(v,-1024,+1023);
     v = lpf_fs4_2(v);
     v = hpf_fs8(v);
   }
-
+  
   // LO to down convert in quadrature
   // note at FS/4 the LO signal reduces to 0, 1 and -1
   int16_t i = 0;
