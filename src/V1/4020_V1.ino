@@ -1,5 +1,5 @@
 /*
- * 4020 Version 1.4.225
+ * 4020 Version 1.5.225
  * Copyright 2024 Ian Mitchell VK7IAN
  * Licenced under the GNU GPL Version 3
  *
@@ -18,9 +18,11 @@
 #include "quad5351.h"
 #include "hardware/pwm.h"
 #include "hardware/adc.h"
+#include "hardware/vreg.h"
 
 //#define YOUR_CALL "VK7IAN"
 
+#define VERSION_STRING "  V1.5."
 #define BAND_40M 0
 #define BAND_20M 1
 #define BAND_MIN BAND_40M 
@@ -158,6 +160,8 @@ save_data[] =
   {14200000UL}
 };
 
+volatile static uint32_t clksys = 0;
+
 Si5351 si5351;
 Rotary r = Rotary(PIN_ENCB,PIN_ENCA);
 
@@ -168,6 +172,7 @@ void init_adc(void)
   adc_gpio_init(PIN_AGCIN);
   adc_select_input(AGC_MUX);
   adc_fifo_setup(true, false, 4, false, false);
+  adc_fifo_drain();
   adc_irq_set_enabled(true);
   irq_set_exclusive_handler(ADC_IRQ_FIFO, adc_interrupt_handler);
   irq_set_enabled(ADC_IRQ_FIFO, true);
@@ -177,6 +182,8 @@ void init_adc(void)
 void setup(void)
 {
   // run DSP on core 0
+  vreg_set_voltage(VREG_VOLTAGE_1_30);
+  clksys = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_SYS);
   pinMode(LED_BUILTIN,OUTPUT);
   pinMode(PIN_ATT,OUTPUT);
   pinMode(PIN_BAND,OUTPUT);
@@ -316,15 +323,19 @@ void setup(void)
   oled.setFont(FONT6X8);
   oled.setCursor(0,0);
   oled.print(" 4020 TRX");
+  char sz_clksys[16] = "";
+  memset(sz_clksys,0,sizeof(sz_clksys));
+  ultoa(clksys,sz_clksys,10);
+  sz_clksys[3] = '\0';
+  oled.print(VERSION_STRING);
+  oled.print(sz_clksys);
   oled.setCursor(0,1);
 #ifdef YOUR_CALL
-  oled.print("  hello");
   oled.setFont(FONT8X16);
   oled.setCursor(0,2);
   oled.print(" ");
   oled.print(YOUR_CALL);
 #else
-  oled.print("    by");
   oled.setFont(FONT8X16);
   oled.setCursor(0,2);
   oled.print(" VK7IAN");
@@ -332,7 +343,7 @@ void setup(void)
   oled.switchFrame();
 
   // splash delay
-  delay(2000);
+  delay(4000);
 
   setup_complete = true;
 }
@@ -357,6 +368,8 @@ void setup1(void)
   }
 #endif
 }
+
+volatile static uint8_t fifo_level = 0;
 
 void update_display(const uint32_t signal_level = 0u)
 {
@@ -430,6 +443,10 @@ void adc_interrupt_handler(void)
 {
   volatile static uint32_t counter = 0;
   volatile static uint32_t adc_raw = 0;
+  if (adc_fifo_get_level()<4u)
+  {
+    return;
+  }
   adc_raw += adc_fifo_get();
   adc_raw += adc_fifo_get();
   adc_raw += adc_fifo_get();
@@ -452,7 +469,6 @@ void loop(void)
 {
   // run DSP on core 0
   static bool tx = false;
-  volatile static uint32_t mic_timeout = 0;
   if (tx)
   {
     // TX, check if changed to RX
@@ -479,7 +495,6 @@ void loop(void)
       pinMode(PIN_MIC,OUTPUT);
       digitalWrite(PIN_MIC,LOW);
       adc_select_input(AGC_MUX);
-      adc_value_ready = false;
       tx = false;
     }
   }
@@ -491,7 +506,6 @@ void loop(void)
       // switch to TX
       adc_gpio_init(PIN_MIC);
       adc_select_input(MIC_MUX);
-      adc_value_ready = false;
       tx = true;
     }
     else
