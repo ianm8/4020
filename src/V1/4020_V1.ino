@@ -160,8 +160,6 @@ save_data[] =
   {14200000UL}
 };
 
-volatile static uint32_t clksys = 0;
-
 Si5351 si5351;
 Rotary r = Rotary(PIN_ENCB,PIN_ENCA);
 
@@ -183,7 +181,7 @@ void setup(void)
 {
   // run DSP on core 0
   vreg_set_voltage(VREG_VOLTAGE_1_30);
-  clksys = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_SYS);
+  const uint32_t clksys = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_SYS);
   pinMode(LED_BUILTIN,OUTPUT);
   pinMode(PIN_ATT,OUTPUT);
   pinMode(PIN_BAND,OUTPUT);
@@ -368,8 +366,6 @@ void setup1(void)
   }
 #endif
 }
-
-volatile static uint8_t fifo_level = 0;
 
 void update_display(const uint32_t signal_level = 0u)
 {
