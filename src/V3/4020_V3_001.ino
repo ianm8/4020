@@ -1,5 +1,5 @@
 /*
- * 4020 Version 3.0.225
+ * 4020 Version 3.1.225
  *
  * This version supports CW
  *
@@ -27,8 +27,9 @@
 
 //#define YOUR_CALL "VK7IAN"
 
-#define VERSION_STRING "  V3.0."
+#define VERSION_STRING "  V3.1."
 #define CW_TIMEOUT 800u
+#define CW_SIDETONE 700u // RX only - not available in TX
 #define BAND_40M 0
 #define BAND_20M 1
 #define BAND_MIN BAND_40M 
@@ -151,6 +152,7 @@ volatile static struct
   bool tx_enable;
   uint8_t mic_proc;
   bool keydown;
+  bool gaussian;
 }
 radio =
 {
@@ -165,7 +167,8 @@ radio =
   SET_ATTEN_AUTO,
   false,
   DEFAULT_MIC_PROC,
-  false
+  false,
+  true
 };
 
 static struct
@@ -698,7 +701,7 @@ void loop(void)
         int16_t tx_q = 0;
         if (radio.mode==MODE_CWL || radio.mode==MODE_CWU)
         {
-          CW::process_key(radio.keydown,tx_i,tx_q);
+          CW::process_key(radio.keydown,radio.gaussian,tx_i,tx_q);
         }
         else
         {
@@ -1078,6 +1081,8 @@ void loop1(void)
           case OPTION_MICLEVEL_2: radio.mic_proc = 2u; break; 
           case OPTION_MICLEVEL_3: radio.mic_proc = 3u; break; 
           case OPTION_MICLEVEL_OFF: radio.mic_proc = 0u; break; 
+          case OPTION_GAUSSIAN_ON: radio.gaussian = true; break; 
+          case OPTION_GAUSSIAN_OFF: radio.gaussian = false; break; 
         }
         // set attenuation based on band or as selected
         switch (radio.set_attenuation)
@@ -1137,7 +1142,7 @@ void loop1(void)
     {
       old_frequency = radio.frequency;
       radio.divisor = get_divisor(radio.frequency);
-      const uint32_t correct4cw = radio.mode==MODE_CWL?+700u:radio.mode==MODE_CWU?-700u:0u;
+      const uint32_t correct4cw = radio.mode==MODE_CWL?+CW_SIDETONE:radio.mode==MODE_CWU?-CW_SIDETONE:0u;
       const uint64_t f = (radio.frequency+correct4cw)*SI5351_FREQ_MULT;
       const uint64_t p = (radio.frequency+correct4cw)*radio.divisor*SI5351_FREQ_MULT;
       si5351.set_freq_manual(f,p,SI5351_CLK0);
@@ -1192,14 +1197,15 @@ void loop1(void)
   {
     if (radio.mode==MODE_CWL || radio.mode==MODE_CWU)
     {
-      const uint32_t correct4cw = radio.mode==MODE_CWL?+1000u:-1000u;
-      const uint64_t f_tx = (radio.frequency+correct4cw)*SI5351_FREQ_MULT;
-      const uint64_t p_tx = (radio.frequency+correct4cw)*radio.divisor*SI5351_FREQ_MULT;
+      const uint32_t correct4cw_tx = radio.mode==MODE_CWL?+1000u:-1000u;
+      const uint64_t f_tx = (radio.frequency+correct4cw_tx)*SI5351_FREQ_MULT;
+      const uint64_t p_tx = (radio.frequency+correct4cw_tx)*radio.divisor*SI5351_FREQ_MULT;
       si5351.set_freq_manual(f_tx,p_tx,SI5351_CLK0);
       si5351.set_freq_manual(f_tx,p_tx,SI5351_CLK1);
       process_cw();
-      const uint64_t f_rx = radio.frequency*SI5351_FREQ_MULT;
-      const uint64_t p_rx = radio.frequency*radio.divisor*SI5351_FREQ_MULT;
+      const uint32_t correct4cw_rx = radio.mode==MODE_CWL?+CW_SIDETONE:radio.mode==MODE_CWU?-CW_SIDETONE:0u;
+      const uint64_t f_rx = (radio.frequency+correct4cw_rx)*SI5351_FREQ_MULT;
+      const uint64_t p_rx = (radio.frequency+correct4cw_rx)*radio.divisor*SI5351_FREQ_MULT;
       si5351.set_freq_manual(f_rx,p_rx,SI5351_CLK0);
       si5351.set_freq_manual(f_rx,p_rx,SI5351_CLK1);
     }
