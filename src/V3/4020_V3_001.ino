@@ -458,6 +458,11 @@ void update_display(const uint32_t signal_level = 0u)
     {
       oled.print(radio.attenuation?" *":"  ");
     }
+    if (radio.mode==MODE_CWL || radio.mode==MODE_CWU)
+    {
+      // highlight if gaussian key click suppresion is off
+      oled.invertOutput(!radio.gaussian);
+    }
     switch (radio.mode)
     {
       case MODE_LSB: oled.print("LSB"); break;
@@ -465,6 +470,7 @@ void update_display(const uint32_t signal_level = 0u)
       case MODE_CWL: oled.print("CWL"); break;
       case MODE_CWU: oled.print("CWU"); break;
     }
+    oled.invertOutput(false);
     oled.setCursor(0,2);
     oled.print(radio.tx_enable?"-25-50-75-":"-3-5-7-9-+");
     const uint8_t sig = min(signal_level,63);
