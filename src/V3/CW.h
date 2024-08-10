@@ -579,73 +579,99 @@ namespace CW
     66
   };
 
-  static void __not_in_flash_func(process_key)(const bool keydown,int16_t &out_i,int16_t &out_q)
+  static void __not_in_flash_func(process_key)(const bool keydown,const bool gaussian,int16_t &out_i,int16_t &out_q)
   {
     volatile static uint32_t phase = 0;
     volatile static uint32_t gaussian_phase = 0;
-/*
-    if (keydown)
+    if (gaussian)
     {
-      out_i = cos_tab[phase];
-      out_q = sin_tab[phase];
-      phase++;
-      if (phase>=COS_SIN_TAB)
+      volatile static enum cw_state_t
       {
-        phase = 0;
+        CW_STATE_KEYUP,
+        CW_STATE_KEYDOWN,
+        CW_STATE_KEY_TRANSITION_TO_DOWN,
+        CW_STATE_KEY_TRANSITION_TO_UP
+      }
+      cw_state = CW_STATE_KEYUP;
+      switch (cw_state)
+      {
+        case CW_STATE_KEYUP:
+        {
+          out_i = 0;
+          out_q = 0;
+          // if keydown then transition to key down
+          if (keydown)
+          {
+            gaussian_phase = 311;
+            cw_state = CW_STATE_KEY_TRANSITION_TO_DOWN;
+          }
+          break;
+        }
+        case CW_STATE_KEY_TRANSITION_TO_DOWN:
+        {
+          // stay here until gaussian done
+          const int32_t gaussian = gaussian_tab[gaussian_phase];
+          const int32_t sig_i = cos_tab[phase];
+          const int32_t sig_q = sin_tab[phase];
+          out_i = (sig_i * gaussian) >> 15;
+          out_q = (sig_q * gaussian) >> 15;
+          phase++;
+          if (phase>=COS_SIN_TAB)
+          {
+            phase = 0;
+          }
+          gaussian_phase--;
+          if (gaussian_phase==0)
+          {
+            cw_state = CW_STATE_KEYDOWN;
+          }
+          break;
+        }
+        case CW_STATE_KEYDOWN:
+        {
+          // stay here while key down
+          out_i = cos_tab[phase];
+          out_q = sin_tab[phase];
+          phase++;
+          if (phase>=COS_SIN_TAB)
+          {
+            phase = 0;
+          }
+          if (keydown)
+          {
+            return;
+          }
+          gaussian_phase = 0;
+          cw_state = CW_STATE_KEY_TRANSITION_TO_UP;
+          break;
+        }
+        case CW_STATE_KEY_TRANSITION_TO_UP:
+        {
+          // stay here until gaussian done
+          const int32_t gaussian = gaussian_tab[gaussian_phase];
+          const int32_t sig_i = cos_tab[phase];
+          const int32_t sig_q = sin_tab[phase];
+          out_i = (sig_i * gaussian) >> 15;
+          out_q = (sig_q * gaussian) >> 15;
+          phase++;
+          if (phase>=COS_SIN_TAB)
+          {
+            phase = 0;
+          }
+          gaussian_phase++;
+          if (gaussian_phase>=312)
+          {
+            cw_state = CW_STATE_KEYUP;
+          }
+          break;
+        }
       }
     }
     else
     {
-      out_i = 0;
-      out_q = 0;      
-    }
-    return;
-*/
-    volatile static enum cw_state_t
-    {
-      CW_STATE_KEYUP,
-      CW_STATE_KEYDOWN,
-      CW_STATE_KEY_TRANSITION_TO_DOWN,
-      CW_STATE_KEY_TRANSITION_TO_UP
-    }
-    cw_state = CW_STATE_KEYUP;
-    switch (cw_state)
-    {
-      case CW_STATE_KEYUP:
+      // gaussian off
+      if (keydown)
       {
-        out_i = 0;
-        out_q = 0;
-        // if keydown then transition to key down
-        if (keydown)
-        {
-          gaussian_phase = 311;
-          cw_state = CW_STATE_KEY_TRANSITION_TO_DOWN;
-        }
-        break;
-      }
-      case CW_STATE_KEY_TRANSITION_TO_DOWN:
-      {
-        // stay here until gaussian done
-        const int32_t gaussian = gaussian_tab[gaussian_phase];
-        const int32_t sig_i = cos_tab[phase];
-        const int32_t sig_q = sin_tab[phase];
-        out_i = (sig_i * gaussian) >> 15;
-        out_q = (sig_q * gaussian) >> 15;
-        phase++;
-        if (phase>=COS_SIN_TAB)
-        {
-          phase = 0;
-        }
-        gaussian_phase--;
-        if (gaussian_phase==0)
-        {
-          cw_state = CW_STATE_KEYDOWN;
-        }
-        break;
-      }
-      case CW_STATE_KEYDOWN:
-      {
-        // stay here while key down
         out_i = cos_tab[phase];
         out_q = sin_tab[phase];
         phase++;
@@ -653,33 +679,11 @@ namespace CW
         {
           phase = 0;
         }
-        if (keydown)
-        {
-          return;
-        }
-        gaussian_phase = 0;
-        cw_state = CW_STATE_KEY_TRANSITION_TO_UP;
-        break;
       }
-      case CW_STATE_KEY_TRANSITION_TO_UP:
+      else
       {
-        // stay here until gaussian done
-        const int32_t gaussian = gaussian_tab[gaussian_phase];
-        const int32_t sig_i = cos_tab[phase];
-        const int32_t sig_q = sin_tab[phase];
-        out_i = (sig_i * gaussian) >> 15;
-        out_q = (sig_q * gaussian) >> 15;
-        phase++;
-        if (phase>=COS_SIN_TAB)
-        {
-          phase = 0;
-        }
-        gaussian_phase++;
-        if (gaussian_phase>=312)
-        {
-          cw_state = CW_STATE_KEYUP;
-        }
-        break;
+        out_i = 0;
+        out_q = 0;      
       }
     }
   }
