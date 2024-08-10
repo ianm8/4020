@@ -460,7 +460,7 @@ void update_display(const uint32_t signal_level = 0u)
     }
     if (radio.mode==MODE_CWL || radio.mode==MODE_CWU)
     {
-      // highlight if gaussian key click suppresion is off
+      // highlight if gaussian key click suppression is off
       oled.invertOutput(!radio.gaussian);
     }
     switch (radio.mode)
