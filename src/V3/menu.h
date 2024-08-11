@@ -36,16 +36,18 @@
 
 */
 
-////
-#define NUM_MENU_ITEMS 5U
+#define NUM_MENU_ITEMS 6U
+
 enum menu_top_t
 {
   MENU_STEP,
   MENU_MODE,
   MENU_ATTEN,
   MENU_MIC,
+  MENU_GAUSSIAN,
   MENU_EXIT
 };
+
 enum option_value_t
 {
   OPTION_STEP_10,
@@ -64,13 +66,17 @@ enum option_value_t
   OPTION_MICLEVEL_2,
   OPTION_MICLEVEL_3,
   OPTION_MICLEVEL_OFF,
+  OPTION_GAUSSIAN_ON,
+  OPTION_GAUSSIAN_OFF,
   OPTION_EXIT
 };
+
 struct options_t
 {
   option_value_t option_value;
   const char* option_name;
 };
+
 volatile static struct
 {
   const menu_top_t menu_value;
@@ -128,6 +134,19 @@ menu_options[] =
       {OPTION_MICLEVEL_2,"Level 2"},
       {OPTION_MICLEVEL_3,"Level 3"},
       {OPTION_MICLEVEL_OFF,"Off"},
+      {OPTION_EXIT,"Exit"},
+      {OPTION_EXIT,"Exit"}
+    }
+  },
+  {
+    MENU_GAUSSIAN,
+    "Gaussian",
+    3U,
+    {
+      {OPTION_GAUSSIAN_ON,"On"},
+      {OPTION_GAUSSIAN_OFF,"Off"},
+      {OPTION_EXIT,"Exit"},
+      {OPTION_EXIT,"Exit"},
       {OPTION_EXIT,"Exit"},
       {OPTION_EXIT,"Exit"}
     }
