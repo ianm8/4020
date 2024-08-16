@@ -1,5 +1,5 @@
 # 4020
-A dual band QRP transceiver for 40m and 20m. This project was described here: ![alt text](https://groups.io/g/qrptech/topic/designing_and_building_a/106295192)
+A dual band QRP transceiver for 40m and 20m. This project was described here: https://groups.io/g/qrptech/topic/designing_and_building_a/106295192
 
 Here is a block diagram:
 
