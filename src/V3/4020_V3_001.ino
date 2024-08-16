@@ -39,8 +39,8 @@
 #define DEFAULT_MODE MODE_USB
 #define DEFAULT_ATTENUATION false
 #define DEFAULT_MIC_PROC 0u
-#define DEFAULT_STEP 500ul
-#define BUTTON_LONG_PRESS_TIME 1000ul
+#define DEFAULT_STEP 1000ul
+#define BUTTON_LONG_PRESS_TIME 800ul
 
 #define TCXO_FREQ 26000000ul
 #define LM4875_MUTE 56u
@@ -303,7 +303,17 @@ void setup(void)
   Wire.setSDA(PIN_SDA);
   Wire.setSCL(PIN_SCL);
   Wire.setClock(400000ul);
-  si5351.init(SI5351_CRYSTAL_LOAD_0PF,TCXO_FREQ,0);
+  const bool si5351_found = si5351.init(SI5351_CRYSTAL_LOAD_0PF,TCXO_FREQ,0);
+  if (!si5351_found)
+  {
+    for (;;)
+    {
+      digitalWrite(LED_BUILTIN,HIGH);
+      delay(50);
+      digitalWrite(LED_BUILTIN,LOW);
+      delay(500);
+    }
+  }
   si5351.drive_strength(SI5351_CLK0,SI5351_DRIVE_8MA);
   si5351.drive_strength(SI5351_CLK1,SI5351_DRIVE_8MA);
   const uint64_t f = radio.frequency*SI5351_FREQ_MULT;
