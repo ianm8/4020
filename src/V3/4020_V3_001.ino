@@ -1,5 +1,5 @@
 /*
- * 4020 Version 3.1.225
+ * 4020 Version 3.2.225
  *
  * This version supports CW
  *
@@ -27,7 +27,7 @@
 
 //#define YOUR_CALL "VK7IAN"
 
-#define VERSION_STRING "  V3.1."
+#define VERSION_STRING "  V3.2."
 #define CW_TIMEOUT 800u
 #define CW_SIDETONE 700u // RX only - not available in TX
 #define BAND_40M 0

@@ -702,7 +702,7 @@ static const int16_t __not_in_flash_func(dc)(const int16_t in)
   return (y1 = s >> 16);
 }
 
-const void __not_in_flash_func(process_mic)(const int16_t s,int16_t &out_i,int16_t &out_q,const bool proc)
+const void __not_in_flash_func(process_mic)(const int16_t s,int16_t &out_i,int16_t &out_q,const uint8_t proc_level)
 {
   // generate a quadrature version of the input signal
   // this is done by applying a local oscillator at one quarter
@@ -729,10 +729,13 @@ const void __not_in_flash_func(process_mic)(const int16_t s,int16_t &out_i,int16
   v = lpf_fs4_1(v);
 
   // mic processor
-  if (proc)
+  if (proc_level)
   {
-    // do not exceed 2
-    v *= 2;
+    // level 1: v = v * 1.25 (v + (v >> 2))
+    // level 2: v = v * 1.5  (v + (v >> 1))
+    // level 3: v = v * 2    (v + (v >> 0))
+    const uint8_t mic_gain = 3-proc_level;
+    v = v + (v>>mic_gain);
     v = constrain(v,-1024,+1023);
     v = lpf_fs4_2(v);
     v = hpf_fs8(v);
