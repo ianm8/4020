@@ -206,6 +206,7 @@ void init_adc(void)
   adc_fifo_drain();
   adc_irq_set_enabled(true);
   irq_set_exclusive_handler(ADC_IRQ_FIFO, adc_interrupt_handler);
+  irq_set_priority(ADC_IRQ_FIFO, PICO_HIGHEST_IRQ_PRIORITY);
   irq_set_enabled(ADC_IRQ_FIFO, true);
   adc_run(true);
 }
@@ -717,7 +718,7 @@ void loop(void)
         int16_t tx_q = 0;
         if (radio.mode==MODE_CWL || radio.mode==MODE_CWU)
         {
-          CW::process_key(radio.keydown,radio.gaussian,tx_i,tx_q);
+          CW::process_cw(radio.keydown,radio.gaussian,tx_i,tx_q);
         }
         else
         {
@@ -917,7 +918,7 @@ static void process_ssb(void)
   }
 }
 
-static void process_cw(void)
+static void process_key(void)
 {
   // mute the receiver
   analogWrite(PIN_AGCOUT,LM4875_SHUTDOWN);
@@ -1042,7 +1043,7 @@ void loop1(void)
       }
     }
 
-    // process botton action
+    // process button action
     switch (button_action)
     {
       case BUTTON_SHORT_PRESS:
@@ -1081,24 +1082,24 @@ void loop1(void)
         const option_value_t option = process_menu();
         switch (option)
         {
-          case OPTION_MODE_LSB: radio.set_mode = SETMODE_LSB; break;
-          case OPTION_MODE_USB: radio.set_mode = SETMODE_USB; break;
-          case OPTION_MODE_CWL: radio.set_mode = SETMODE_CWL; break;
-          case OPTION_MODE_CWU: radio.set_mode = SETMODE_CWU; break;
-          case OPTION_MODE_AUTO: radio.set_mode = SETMODE_AUTO; break;
-          case OPTION_STEP_10: radio.step = 10U; break;
-          case OPTION_STEP_100: radio.step = 100U; break;
-          case OPTION_STEP_500: radio.step = 500U; break;
-          case OPTION_STEP_1000: radio.step = 1000U; break;
-          case OPTION_ATTEN_ON: radio.set_attenuation = SET_ATTEN_ON; break; 
-          case OPTION_ATTEN_OFF: radio.set_attenuation = SET_ATTEN_OFF; break; 
-          case OPTION_ATTEN_AUTO: radio.set_attenuation = SET_ATTEN_AUTO; break; 
-          case OPTION_MICLEVEL_1: radio.mic_proc = 1u; break; 
-          case OPTION_MICLEVEL_2: radio.mic_proc = 2u; break; 
-          case OPTION_MICLEVEL_3: radio.mic_proc = 3u; break; 
-          case OPTION_MICLEVEL_OFF: radio.mic_proc = 0u; break; 
-          case OPTION_GAUSSIAN_ON: radio.gaussian = true; break; 
-          case OPTION_GAUSSIAN_OFF: radio.gaussian = false; break; 
+          case OPTION_MODE_LSB:     radio.set_mode = SETMODE_LSB;           break;
+          case OPTION_MODE_USB:     radio.set_mode = SETMODE_USB;           break;
+          case OPTION_MODE_CWL:     radio.set_mode = SETMODE_CWL;           break;
+          case OPTION_MODE_CWU:     radio.set_mode = SETMODE_CWU;           break;
+          case OPTION_MODE_AUTO:    radio.set_mode = SETMODE_AUTO;          break;
+          case OPTION_STEP_10:      radio.step = 10U;                       break;
+          case OPTION_STEP_100:     radio.step = 100U;                      break;
+          case OPTION_STEP_500:     radio.step = 500U;                      break;
+          case OPTION_STEP_1000:    radio.step = 1000U;                     break;
+          case OPTION_ATTEN_ON:     radio.set_attenuation = SET_ATTEN_ON;   break; 
+          case OPTION_ATTEN_OFF:    radio.set_attenuation = SET_ATTEN_OFF;  break; 
+          case OPTION_ATTEN_AUTO:   radio.set_attenuation = SET_ATTEN_AUTO; break; 
+          case OPTION_MICLEVEL_1:   radio.mic_proc = 1u;                    break; 
+          case OPTION_MICLEVEL_2:   radio.mic_proc = 2u;                    break; 
+          case OPTION_MICLEVEL_3:   radio.mic_proc = 3u;                    break; 
+          case OPTION_MICLEVEL_OFF: radio.mic_proc = 0u;                    break; 
+          case OPTION_GAUSSIAN_ON:  radio.gaussian = true;                  break; 
+          case OPTION_GAUSSIAN_OFF: radio.gaussian = false;                 break; 
         }
         // set attenuation based on band or as selected
         switch (radio.set_attenuation)
@@ -1218,7 +1219,7 @@ void loop1(void)
       const uint64_t p_tx = (radio.frequency+correct4cw_tx)*radio.divisor*SI5351_FREQ_MULT;
       si5351.set_freq_manual(f_tx,p_tx,SI5351_CLK0);
       si5351.set_freq_manual(f_tx,p_tx,SI5351_CLK1);
-      process_cw();
+      process_key();
       const uint32_t correct4cw_rx = radio.mode==MODE_CWL?+CW_SIDETONE:radio.mode==MODE_CWU?-CW_SIDETONE:0u;
       const uint64_t f_rx = (radio.frequency+correct4cw_rx)*SI5351_FREQ_MULT;
       const uint64_t p_rx = (radio.frequency+correct4cw_rx)*radio.divisor*SI5351_FREQ_MULT;
