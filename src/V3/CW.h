@@ -579,7 +579,7 @@ namespace CW
     66
   };
 
-  static void __not_in_flash_func(process_key)(const bool keydown,const bool gaussian,int16_t &out_i,int16_t &out_q)
+  static void __not_in_flash_func(process_cw)(const bool keydown,const bool gaussian,int16_t &out_i,int16_t &out_q)
   {
     volatile static uint32_t phase = 0;
     volatile static uint32_t gaussian_phase = 0;
